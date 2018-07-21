@@ -4,6 +4,9 @@ import tacit.sbt.ProjectExtensions._
 lazy val core =
   (project in file("core"))
     .withCustomSettings()
+    .libraryDependencies(
+      jna
+    )
 
 lazy val syncFS =
   (project in file("syncFS"))
@@ -22,4 +25,6 @@ lazy val root =
       syncFS
     )
 
+fork in Global := true
+outputStrategy in Global := Some(StdoutOutput)
 cancelable in Global := true
