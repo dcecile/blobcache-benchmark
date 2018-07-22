@@ -1,19 +1,34 @@
 package blobstoreBenchmark.syncFS
 
 import com.github.dwickern.macros.NameOf._
+import java.io.File
+import java.io.FileOutputStream
 
+import blobstoreBenchmark.core.Blob
 import blobstoreBenchmark.core.Bench
-import blobstoreBenchmark.core.Keys
+import blobstoreBenchmark.core.Harness
+import blobstoreBenchmark.core.Key
 
 object Main extends App {
   private def run(): Unit = {
-    Keys.seed()
-    val count = 20000000
-    report(count, {
-      val keys = Keys.createInitialKeys(count)
-      Thread.sleep(1000)
-      println(s"${keys.length}")
-    })
+    Key.seed()
+
+    val count = 10000
+    val size = 4096
+    val keys = Key.createInitialKeys(count)
+    val dbDir = Harness.makeEmptyDbDir()
+
+    report(
+      count, {
+        for (key <- keys) {
+          val blob = Blob.fromKey(key, size)
+          val file = new File(dbDir, Key.toBase64(key))
+          val fileOutputStream = new FileOutputStream(file)
+          fileOutputStream.write(blob)
+          fileOutputStream.close()
+        }
+      }
+    )
   }
 
   private def report =

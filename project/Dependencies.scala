@@ -11,6 +11,10 @@ object Dependencies {
     setting(
       "net.java.dev.jna" % "jna" % "4.5.2")
 
+  lazy val commonsIo =
+    setting(
+      "commons-io" % "commons-io" % "2.6")
+
   lazy val nameof =
     setting(
       "com.github.dwickern" %% "scala-nameof" % "1.0.3" % Provided)

@@ -5,7 +5,8 @@ lazy val core =
   (project in file("core"))
     .withCustomSettings()
     .libraryDependencies(
-      jna
+      jna,
+      commonsIo
     )
 
 lazy val syncFS =

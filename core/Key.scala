@@ -1,8 +1,10 @@
 package blobstoreBenchmark.core
 
+import java.util.Base64
+import java.nio.ByteBuffer
 import scala.util.Random
 
-object Keys {
+object Key {
   def seed(): Unit =
     Random.setSeed(0)
 
@@ -13,4 +15,10 @@ object Keys {
     }
     buffer
   }
+
+  def toBase64(key: Long): String =
+    Base64.getUrlEncoder.encodeToString(toBytes(key))
+
+  def toBytes(key: Long): Array[Byte] =
+    ByteBuffer.allocate(8).putLong(key).array
 }
