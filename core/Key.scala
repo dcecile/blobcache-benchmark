@@ -1,24 +1,31 @@
 package blobstoreBenchmark.core
 
-import java.util.Base64
 import java.nio.ByteBuffer
+import java.util.Base64
+import scala.annotation.tailrec
+import scala.collection.immutable.Set
 import scala.util.Random
 
+final case class Key(
+  value: Long
+) extends AnyVal {
+  def toBase64: String =
+    Base64.getUrlEncoder.encodeToString(toBytes)
+
+  def toBytes: Array[Byte] =
+    ByteBuffer.allocate(Key.bytes).putLong(value).array
+}
+
 object Key {
-  def seed(): Unit =
-    Random.setSeed(0)
+  val bytes: Int = 8
 
-  def createInitialKeys(count: Int): Array[Long] = {
-    val buffer = new Array[Long](count)
-    for (i <- 0 to (count - 1)) {
-      buffer(i) = Random.nextLong()
+  @tailrec
+  def generate(existingKeys: Set[Long]): Key = {
+    val value = Random.nextLong()
+    if (existingKeys(value)) {
+      generate(existingKeys)
+    } else {
+      Key(value)
     }
-    buffer
   }
-
-  def toBase64(key: Long): String =
-    Base64.getUrlEncoder.encodeToString(toBytes(key))
-
-  def toBytes(key: Long): Array[Byte] =
-    ByteBuffer.allocate(8).putLong(key).array
 }

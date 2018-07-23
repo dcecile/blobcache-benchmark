@@ -21,7 +21,7 @@ object Bench {
   }
 
   def report(qualifiedName: String)(
-    count: Int,
+    plan: Plan,
     block: => Unit
   ): Unit = {
     val start = snapshot()
@@ -41,7 +41,7 @@ object Bench {
       toSeconds(start.nanoTime, end.nanoTime, 1000000000)
     println(
       Seq(
-        s"${toSimpleName(qualifiedName)} ${count}",
+        s"${toSimpleName(qualifiedName)} ${plan.keyCount} ${plan.stepCount} ${plan.blobSize}",
         s"user ${formatSeconds(userSeconds)}",
         s"system ${formatSeconds(systemSeconds)}",
         s"total ${formatSeconds(totalSeconds)}"
