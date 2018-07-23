@@ -12,6 +12,7 @@ import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Plan
 import blobstoreBenchmark.core.Step
+import blobstoreBenchmark.core.Verify
 
 object Main extends App {
   private def run(): Unit = {
@@ -29,7 +30,7 @@ object Main extends App {
         val sum = plan.steps.toStream
           .map(runStep(dbDir, plan, _))
           .sum
-        println(s"Sum: ${Key(sum).toBase64}")
+        Verify.sum("total", sum, plan.expectedSum)
       }
     )
   }
@@ -73,7 +74,7 @@ object Main extends App {
       throw new IOException(
         s"Problem reading ${file.getAbsolutePath()}");
     }
-    val sum = Blob.sum(blob)
+    val sum = Verify.blobSum(blob, key, blobSize)
     fileInputStream.close()
     sum
   }

@@ -10,7 +10,8 @@ final case class Plan(
   stepCount: Int,
   stepSize: Int,
   keys: List[Key],
-  steps: List[Step])
+  steps: List[Step],
+  expectedSum: Long)
 
 object Plan {
   def generate(): Plan = {
@@ -30,6 +31,10 @@ object Plan {
         set.toVector,
         stepSize,
         stepCount)
+    val expectedSum = steps.toStream
+      .flatMap(step => step.queries)
+      .map(key => Blob.predictSum(key, blobSize))
+      .sum
 
     new Plan(
       keyCount,
@@ -37,7 +42,8 @@ object Plan {
       stepCount,
       stepSize,
       keys,
-      steps)
+      steps,
+      expectedSum)
   }
 
   private def seed(): Unit =
