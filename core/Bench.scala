@@ -20,8 +20,8 @@ object Bench {
     Bench(utime + cutime, stime + cstime, nanoTime)
   }
 
-  def report(qualifiedName: String)(
-    plan: Plan,
+  def report(
+    description: String,
     block: => Unit
   ): Unit = {
     val start = snapshot()
@@ -41,7 +41,7 @@ object Bench {
       toSeconds(start.nanoTime, end.nanoTime, 1000000000)
     println(
       Seq(
-        s"${toSimpleName(qualifiedName)} ${plan.keyCount} ${plan.stepCount} ${plan.blobSize}",
+        s"${description}",
         s"user ${formatSeconds(userSeconds)}",
         s"system ${formatSeconds(systemSeconds)}",
         s"total ${formatSeconds(totalSeconds)}"
@@ -54,9 +54,6 @@ object Bench {
     conversion: Long
   ): Double =
     (end - start).toDouble / conversion.toDouble
-
-  def toSimpleName(qualifiedName: String): String =
-    qualifiedName.split('.')(1)
 
   def formatSeconds(seconds: Double): String =
     f"${seconds}%1.2fs"

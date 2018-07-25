@@ -15,9 +15,9 @@ object Dependencies {
     setting(
       "commons-io" % "commons-io" % "2.6")
 
-  lazy val nameof =
+  lazy val scallop =
     setting(
-      "com.github.dwickern" %% "scala-nameof" % "1.0.3" % Provided)
+      "org.rogach" %% "scallop" % "3.1.2")
 
   lazy val customResolvers =
     resolvers ++= Seq(

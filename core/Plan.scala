@@ -1,10 +1,12 @@
 package blobstoreBenchmark.core
 
+import java.io.File
 import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
 import scala.util.Random
 
 final case class Plan(
+  dbDir: File,
   keyCount: Int,
   blobSize: Int,
   stepCount: Int,
@@ -14,11 +16,13 @@ final case class Plan(
   expectedSum: Long)
 
 object Plan {
-  def generate(): Plan = {
+  def generate(
+    dbDir: File,
+    keyCount: Int,
+    stepCount: Int
+  ): Plan = {
     seed()
 
-    val keyCount = 100
-    val stepCount = 1000
     val stepSize = 10
     val blobSize = 4096
 
@@ -37,6 +41,7 @@ object Plan {
       .sum
 
     new Plan(
+      dbDir,
       keyCount,
       blobSize,
       stepCount,
