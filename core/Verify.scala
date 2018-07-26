@@ -1,10 +1,13 @@
 package blobstoreBenchmark.core
 
+import java.nio.ByteBuffer
+
 object Verify {
   def blobSum(
-    blob: Array[Byte],
+    blob: ByteBuffer,
     key: Key,
-    size: Int): Long = {
+    size: Int
+  ): Long = {
     val actual = Blob.sum(blob)
     val expected = Blob.predictSum(key, size)
     sum(s"key ${key.toBase64}", actual, expected)
@@ -15,7 +18,8 @@ object Verify {
   def sum(
     description: String,
     actual: Long,
-    expected: Long): Unit =
+    expected: Long
+  ): Unit =
     if (actual != expected) {
       throw new Exception(
         s"${description} sum failure: actual ${actual.toHexString}, expected ${expected.toHexString}")

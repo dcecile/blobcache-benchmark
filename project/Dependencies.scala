@@ -19,6 +19,14 @@ object Dependencies {
     setting(
       "org.rogach" %% "scallop" % "3.1.2")
 
+  lazy val monix =
+    setting(
+      "io.monix" %% "monix" % "3.0.0-RC1")
+
+  lazy val monixnio =
+    setting(
+      "io.monix" %% "monix-nio" % "0.0.3")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")

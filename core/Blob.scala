@@ -3,20 +3,18 @@ package blobstoreBenchmark.core
 import java.nio.ByteBuffer
 
 object Blob {
-  def generate(key: Key, size: Int): Array[Byte] = {
+  def generate(key: Key, size: Int): ByteBuffer = {
     val buffer = ByteBuffer.allocate(size)
     for (i <- 1 to (size / Key.bytes)) {
       buffer.putLong(key.value + i)
     }
-    buffer.array
+    buffer.rewind
   }
 
-  def sum(blob: Array[Byte]): Long = {
-    val buffer = ByteBuffer.wrap(blob)
-    (1 to (blob.size / Key.bytes)).toStream
-      .map(_ => buffer.getLong())
+  def sum(blob: ByteBuffer): Long =
+    (1 to (blob.remaining / Key.bytes)).toStream
+      .map(_ => blob.getLong())
       .sum
-  }
 
   def predictSum(key: Key, size: Int): Long = {
     val count = (size / Key.bytes).toLong

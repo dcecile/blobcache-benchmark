@@ -18,11 +18,23 @@ lazy val syncFS =
       core
     )
 
+lazy val asyncFS =
+  (project in file("asyncFS"))
+    .withCustomSettings()
+    .libraryDependencies(
+      monix,
+      monixnio
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(
       core,
-      syncFS
+      syncFS,
+      asyncFS
     )
 
 fork in Global := true

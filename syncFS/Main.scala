@@ -3,7 +3,8 @@ package blobstoreBenchmark.syncFS
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException;
+import java.io.IOException
+import java.nio.ByteBuffer
 
 import blobstoreBenchmark.core.Blob
 import blobstoreBenchmark.core.Harness
@@ -45,7 +46,7 @@ object Main extends Harness {
     val blob = Blob.generate(key, blobSize)
     val file = new File(dbDir, key.toBase64)
     val fileOutputStream = new FileOutputStream(file)
-    fileOutputStream.write(blob)
+    fileOutputStream.write(blob.array)
     fileOutputStream.close()
   }
 
@@ -57,14 +58,13 @@ object Main extends Harness {
   ): Long = {
     val file = new File(dbDir, key.toBase64)
     val fileInputStream = new FileInputStream(file)
-    val blob = new Array[Byte](blobSize)
-    if (fileInputStream.read(blob) != blobSize) {
+    val buffer = new Array[Byte](blobSize)
+    if (fileInputStream.read(buffer) != blobSize) {
       throw new IOException(
         s"Problem reading ${file.getAbsolutePath()}");
     }
-    val sum = Verify.blobSum(blob, key, blobSize)
     fileInputStream.close()
-    sum
+    Verify.blobSum(ByteBuffer.wrap(buffer), key, blobSize)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
