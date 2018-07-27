@@ -31,6 +31,10 @@ object Dependencies {
     setting(
       "com.h2database" % "h2" % "1.4.197")
 
+  lazy val rocksdbjni =
+    setting(
+      "org.rocksdb" % "rocksdbjni" % "5.14.2")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")

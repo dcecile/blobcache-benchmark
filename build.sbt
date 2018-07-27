@@ -39,12 +39,24 @@ lazy val h2 =
       core
     )
 
+lazy val rocksDB =
+  (project in file("rocksDB"))
+    .withCustomSettings()
+    .libraryDependencies(
+      rocksdbjni
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(
       core,
       syncFS,
-      asyncFS
+      asyncFS,
+      h2,
+      rocksDB
     )
 
 fork in Global := true

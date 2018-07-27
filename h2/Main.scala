@@ -14,24 +14,27 @@ import blobstoreBenchmark.core.Step
 import blobstoreBenchmark.core.Verify
 
 object Main extends Harness {
-  def init(plan: Plan): Unit = {
-    withConnection(plan.dbDir, connection => {
-      createTable(connection)
-      plan.keys.grouped(100).foreach(group => {
-        group.foreach(write(connection, plan.blobSize, _))
-        connection.commit()
-      })
-    })
-  }
+  def init(plan: Plan): Unit =
+    withConnection(
+      plan.dbDir,
+      connection => {
+        createTable(connection)
+        plan.keys
+          .grouped(100)
+          .foreach(group => {
+            group.foreach(write(connection, plan.blobSize, _))
+            connection.commit()
+          })
+      }
+    )
 
-  def run(plan: Plan): Unit = {
+  def run(plan: Plan): Unit =
     withConnection(plan.dbDir, connection => {
       val sum = plan.steps.toStream
         .map(runStep(connection, plan, _))
         .sum
       Verify.sum("total", sum, plan.expectedSum)
     })
-  }
 
   def runStep(
     connection: Connection,
@@ -52,7 +55,10 @@ object Main extends Harness {
   def debug(): Unit =
     Console.main()
 
-  def withConnection[T](dbDir: File, block: Connection => T): T = {
+  def withConnection[T](
+    dbDir: File,
+    block: Connection => T
+  ): T = {
     val pool = JdbcConnectionPool.create(
       connectionString(dbDir),
       "sa",
@@ -69,7 +75,8 @@ object Main extends Harness {
     s"jdbc:h2:./${dbDir.getPath()}/store"
 
   def createTable(connection: Connection): Unit = {
-    val statement = connection.prepareStatement("create table pairs(id bigint primary key, data binary)")
+    val statement = connection.prepareStatement(
+      "create table pairs(id bigint primary key, data binary)")
     val _ = statement.execute()
   }
 
