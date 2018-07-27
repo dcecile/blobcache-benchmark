@@ -29,6 +29,16 @@ lazy val asyncFS =
       core
     )
 
+lazy val h2 =
+  (project in file("h2"))
+    .withCustomSettings()
+    .libraryDependencies(
+      h2database
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(

@@ -24,7 +24,7 @@ object Main extends Harness {
     Verify.sum("total", sum, plan.expectedSum)
   }
 
-  private def runStep(
+  def runStep(
     plan: Plan,
     step: Step
   ): Long = {
@@ -38,7 +38,7 @@ object Main extends Harness {
     sum
   }
 
-  private def write(
+  def write(
     dbDir: File,
     blobSize: Int,
     key: Key
@@ -51,7 +51,7 @@ object Main extends Harness {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
-  private def read(
+  def read(
     dbDir: File,
     blobSize: Int,
     key: Key

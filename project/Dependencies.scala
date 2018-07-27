@@ -27,6 +27,10 @@ object Dependencies {
     setting(
       "io.monix" %% "monix-nio" % "0.0.3")
 
+  lazy val h2database =
+    setting(
+      "com.h2database" % "h2" % "1.4.197")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")

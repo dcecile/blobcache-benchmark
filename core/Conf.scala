@@ -9,6 +9,8 @@ class Conf(arguments: Seq[String])
 
   object init extends Subcommand("init") {
     val keyCount: ScallopOption[Int] = trailArg[Int]()
+    val ignored: ScallopOption[Int] =
+      trailArg[Int](required = false)
   }
   addSubcommand(init)
 
