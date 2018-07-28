@@ -30,7 +30,7 @@ trait Harness {
   ): Unit = {
     harnessClean()
     makeDbDir()
-    val plan = Plan.generate(dbDir, keyCount, stepCount = 0)
+    val plan = generatePlan(keyCount, stepCount = 0)
     Bench.report(describePlanTask("init", plan), init(plan))
   }
 
@@ -38,11 +38,20 @@ trait Harness {
     keyCount: Int,
     stepCount: Int
   ): Unit = {
-    val plan = Plan.generate(dbDir, keyCount, stepCount)
+    Bench.report(describeTask("dropCaches"), Caches.drop())
+    val plan = generatePlan(keyCount, stepCount)
     val sum =
       Bench.report(describePlanTask("run", plan), run(plan))
     Verify.sum("total", sum, plan.expectedSum)
   }
+
+  private def generatePlan(
+    keyCount: Int,
+    stepCount: Int
+  ): Plan =
+    Bench.report(
+      describeTask("plan"),
+      Plan.generate(dbDir, keyCount, stepCount))
 
   private lazy val name =
     this.getClass().getName().split('.')(1)
