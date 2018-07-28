@@ -39,6 +39,10 @@ object Dependencies {
     setting(
       "org.lmdbjava" % "lmdbjava" % "0.6.1")
 
+  lazy val mapdb =
+    setting(
+      "org.mapdb" % "mapdb" % "3.0.7")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")
