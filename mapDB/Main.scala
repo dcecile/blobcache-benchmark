@@ -20,12 +20,11 @@ object Main extends Harness {
     })
 
   def run(plan: Plan): Long =
-    withMap(
-      plan.dbDir,
-      db =>
-        plan.steps.toStream
-          .map(runStep(db, plan, _))
-          .sum)
+    withMap(plan.dbDir, db => {
+      plan.steps.toStream
+        .map(runStep(db, plan, _))
+        .sum
+    })
 
   def runStep(
     db: Map[JavaLong, Array[Byte]],

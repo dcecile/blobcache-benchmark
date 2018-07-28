@@ -28,12 +28,11 @@ object Main extends Harness {
     )
 
   def run(plan: Plan): Long =
-    withConnection(
-      plan.dbDir,
-      connection =>
-        plan.steps.toStream
-          .map(runStep(connection, plan, _))
-          .sum)
+    withConnection(plan.dbDir, connection => {
+      plan.steps.toStream
+        .map(runStep(connection, plan, _))
+        .sum
+    })
 
   def runStep(
     connection: Connection,
