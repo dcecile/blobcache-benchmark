@@ -1,19 +1,6 @@
 package blobstoreBenchmark.core
 
-import java.nio.ByteBuffer
-
 object Verify {
-  def blobSum(
-    blob: ByteBuffer,
-    key: Key,
-    size: Int
-  ): Long = {
-    val actual = Blob.sum(blob)
-    val expected = Blob.predictSum(key, size)
-    sum(s"key ${key.toBase64}", actual, expected)
-    actual
-  }
-
   @SuppressWarnings(Array("org.wartremover.warts.Throw"))
   def sum(
     description: String,

@@ -5,40 +5,35 @@ import scala.collection.immutable.TreeSet
 import scala.util.Random
 
 final case class Step(
-  keys: List[(Key, Key)]
-) {
-  def queries: List[Key] = keys.map(_._1)
-  def updates: List[Key] = keys.map(_._2)
+  updates: List[Pair]
+) extends AnyVal {
+  def queries: List[Key] = updates.map(_.key)
 }
 
 object Step {
   def generate(
-    set: TreeSet[Long],
-    vector: Vector[Long],
+    vector: Vector[Key],
     stepSize: Int
-  ): (Step, TreeSet[Long], Vector[Long]) = {
+  ): Step = {
     val queries = pickQueries(
-      List[(Long, Int)](),
-      TreeSet[Long](),
+      List[Key](),
+      TreeSet[Key](),
       vector,
       stepSize)
-    val (updates, newSet, newVector) =
-      pickUpdates(List[(Long, Long)](), set, vector, queries)
-    val keys = updates.map({
-      case (query, update) => (Key(query), Key(update))
-    })
-    (Step(keys), newSet, newVector)
+    val updates =
+      pickUpdates(queries)
+    Step(updates)
   }
 
   @tailrec
   private def pickQueries(
-    queries: List[(Long, Int)],
-    querySet: TreeSet[Long],
-    vector: Vector[Long],
+    queries: List[Key],
+    querySet: TreeSet[Key],
+    vector: Vector[Key],
     remaining: Int
-  ): List[(Long, Int)] = {
-    val (key, i) = pickQuery(querySet, vector)
-    val newQueries = (key, i) +: queries
+  ): List[Key] = {
+    val key = pickQuery(querySet, vector)
+    val newQueries = key +: queries
     val newQuerySet = querySet + key
     if (remaining > 0) {
       pickQueries(
@@ -53,38 +48,20 @@ object Step {
 
   @tailrec
   private def pickQuery(
-    querySet: TreeSet[Long],
-    vector: Vector[Long]
-  ): (Long, Int) = {
+    querySet: TreeSet[Key],
+    vector: Vector[Key]
+  ): Key = {
     val i = Random.nextInt(vector.size)
     val key = vector(i)
     if (querySet(key)) {
       pickQuery(querySet, vector)
     } else {
-      (key, i)
+      key
     }
   }
 
-  @tailrec
   private def pickUpdates(
-    updates: List[(Long, Long)],
-    set: TreeSet[Long],
-    vector: Vector[Long],
-    remaining: List[(Long, Int)]
-  ): (List[(Long, Long)], TreeSet[Long], Vector[Long]) =
-    remaining match {
-      case (key, i) +: newRemaining => {
-        val newKey = Key.generate(set).value
-        val newUpdates = (key, newKey) +: updates
-        val newSet = set + newKey
-        val newVector = vector.updated(i, newKey)
-        pickUpdates(
-          newUpdates,
-          newSet,
-          newVector,
-          newRemaining)
-      }
-      case Nil =>
-        (updates.reverse, set -- updates.map(_._1), vector)
-    }
+    queries: List[Key]
+  ): List[Pair] =
+    queries.map(key => Pair(key, BlobStub.generate()))
 }

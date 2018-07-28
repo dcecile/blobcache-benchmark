@@ -2,7 +2,6 @@ package blobstoreBenchmark.asyncFS
 
 import java.io.File
 import java.nio.ByteBuffer
-import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 import monix.eval.Task
 import monix.execution.Scheduler
@@ -10,24 +9,23 @@ import monix.nio.file.TaskFileChannel
 import monix.reactive.Observable
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.Function.tupled
 
-import blobstoreBenchmark.core.Blob
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
+import blobstoreBenchmark.core.Pair
 import blobstoreBenchmark.core.Plan
 import blobstoreBenchmark.core.Step
-import blobstoreBenchmark.core.Verify
+import blobstoreBenchmark.core.Sum
 
 object Main extends Harness {
   def init(plan: Plan): Unit =
-    writeParallel(plan.dbDir, plan.blobSize, plan.keys)
+    writeParallel(plan.dbDir, plan.blobSize, plan.pairs)
 
-  def run(plan: Plan): Unit = {
-    val sum = plan.steps.toStream
+  def run(plan: Plan): Long =
+    plan.steps.toStream
       .map(runStep(plan, _))
       .sum
-    Verify.sum("total", sum, plan.expectedSum)
-  }
 
   def runStep(
     plan: Plan,
@@ -37,27 +35,24 @@ object Main extends Harness {
       .map(read(plan.dbDir, plan.blobSize, _))
       .sum
     writeParallel(plan.dbDir, plan.blobSize, step.updates)
-    step.queries
-      .foreach(delete(plan.dbDir, _))
     sum
   }
 
   def writeParallel(
     dbDir: File,
     blobSize: Int,
-    keys: Seq[Key]
+    pairs: Seq[Pair]
   ): Unit = {
     implicit val ctx: Scheduler = Scheduler.Implicits.global
 
     val future = Observable
-      .fromIterable(keys)
-      .mapParallelUnordered(1)(key =>
-        Task((key, Blob.generate(key, blobSize))))
+      .fromIterable(pairs)
+      .mapParallelUnordered(1)(pair =>
+        Task(
+          (pair.key, pair.blobStub.generateBuffer(blobSize))))
       .bufferIntrospective(200)
       .mapTask(pairs => {
-        val batch = pairs.map({
-          case (key, blob) => writeTask(dbDir, key, blob)
-        })
+        val batch = pairs.map(tupled(writeTask(dbDir, _, _)))
         Task.gatherUnordered(batch).map(_ => ())
       })
       .completedL
@@ -71,7 +66,7 @@ object Main extends Harness {
   def writeTask(
     dbDir: File,
     key: Key,
-    blob: ByteBuffer
+    buffer: ByteBuffer
   )(
     implicit ctx: Scheduler
   ): Task[Unit] = {
@@ -81,7 +76,7 @@ object Main extends Harness {
       StandardOpenOption.CREATE,
       StandardOpenOption.WRITE)
     channel
-      .write(blob, 0)
+      .write(buffer, 0)
       .flatMap(_ => channel.close())
   }
 
@@ -92,19 +87,14 @@ object Main extends Harness {
   ): Long = {
     implicit val ctx: Scheduler = Scheduler.Implicits.global
     val file = new File(dbDir, key.toBase64)
-    val blob = ByteBuffer.allocateDirect(blobSize)
+    val buffer = ByteBuffer.allocateDirect(blobSize)
     val channel =
       TaskFileChannel(file, StandardOpenOption.READ)
     val future = channel
-      .read(blob, 0)
+      .read(buffer, 0)
       .flatMap(_ => channel.close())
       .runAsync
     Await.result(future, 1.seconds)
-    Verify.blobSum(blob.rewind, key, blobSize)
-  }
-
-  def delete(dbDir: File, key: Key): Unit = {
-    val file = new File(dbDir, key.toBase64)
-    Files.delete(file.toPath)
+    Sum.fromBuffer(buffer.rewind)
   }
 }

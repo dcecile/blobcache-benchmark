@@ -1,30 +1,29 @@
 package blobstoreBenchmark.rocksDB
 
 import java.io.File
-import java.nio.ByteBuffer
 import org.rocksdb.RocksDB
 import org.rocksdb.Options
 
-import blobstoreBenchmark.core.Blob
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
+import blobstoreBenchmark.core.Pair
 import blobstoreBenchmark.core.Plan
 import blobstoreBenchmark.core.Step
-import blobstoreBenchmark.core.Verify
+import blobstoreBenchmark.core.Sum
 
 object Main extends Harness {
   def init(plan: Plan): Unit =
     withDb(plan.dbDir, db => {
-      plan.keys.foreach(write(db, plan.blobSize, _))
+      plan.pairs.foreach(write(db, plan.blobSize, _))
     })
 
-  def run(plan: Plan): Unit =
-    withDb(plan.dbDir, db => {
-      val sum = plan.steps.toStream
-        .map(runStep(db, plan, _))
-        .sum
-      Verify.sum("total", sum, plan.expectedSum)
-    })
+  def run(plan: Plan): Long =
+    withDb(
+      plan.dbDir,
+      db =>
+        plan.steps.toStream
+          .map(runStep(db, plan, _))
+          .sum)
 
   def runStep(
     db: RocksDB,
@@ -32,12 +31,10 @@ object Main extends Harness {
     step: Step
   ): Long = {
     val sum = step.queries.toStream
-      .map(read(db, plan.blobSize, _))
+      .map(read(db, _))
       .sum
     step.updates
       .foreach(write(db, plan.blobSize, _))
-    step.queries
-      .foreach(delete(db, _))
     sum
   }
 
@@ -55,21 +52,17 @@ object Main extends Harness {
   def write(
     db: RocksDB,
     blobSize: Int,
-    key: Key
-  ): Unit = {
-    val blob = Blob.generate(key, blobSize)
-    db.put(key.toBytes, blob.array)
-  }
+    pair: Pair
+  ): Unit =
+    db.put(
+      pair.key.toBytes,
+      pair.blobStub.generateArray(blobSize))
 
   def read(
     db: RocksDB,
-    blobSize: Int,
     key: Key
   ): Long = {
-    val buffer = db.get(key.toBytes)
-    Verify.blobSum(ByteBuffer.wrap(buffer), key, blobSize)
+    val array = db.get(key.toBytes)
+    Sum.fromArray(array)
   }
-
-  def delete(db: RocksDB, key: Key): Unit =
-    db.delete(key.toBytes)
 }

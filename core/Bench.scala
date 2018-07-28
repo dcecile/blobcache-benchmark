@@ -20,12 +20,12 @@ object Bench {
     Bench(utime + cutime, stime + cstime, nanoTime)
   }
 
-  def report(
+  def report[T](
     description: String,
-    block: => Unit
-  ): Unit = {
+    block: => T
+  ): T = {
     val start = snapshot()
-    val () = block
+    val result: T = block
     val end = snapshot()
     val userSeconds =
       toSeconds(
@@ -46,6 +46,7 @@ object Bench {
         s"system ${formatSeconds(systemSeconds)}",
         s"total ${formatSeconds(totalSeconds)}"
       ).mkString(" / "))
+    result
   }
 
   def toSeconds(

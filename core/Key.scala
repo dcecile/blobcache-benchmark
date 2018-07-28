@@ -8,7 +8,10 @@ import scala.util.Random
 
 final case class Key(
   value: Long
-) extends AnyVal {
+) extends AnyVal
+    with Ordered[Key] {
+  def compare(that: Key): Int = value compare that.value
+
   def toBase64: String =
     Base64.getUrlEncoder.encodeToString(toBytes)
 
@@ -20,12 +23,12 @@ object Key {
   val bytes: Int = 8
 
   @tailrec
-  def generate(existingKeys: Set[Long]): Key = {
-    val value = Random.nextLong()
-    if (existingKeys(value)) {
+  def generate(existingKeys: Set[Key]): Key = {
+    val key = Key(Random.nextLong())
+    if (existingKeys(key)) {
       generate(existingKeys)
     } else {
-      Key(value)
+      key
     }
   }
 }

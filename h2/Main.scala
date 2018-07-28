@@ -1,17 +1,16 @@
 package blobstoreBenchmark.h2
 
 import java.io.File
-import java.nio.ByteBuffer
 import java.sql.Connection
 import org.h2.jdbcx.JdbcConnectionPool
 import org.h2.tools.Console
 
-import blobstoreBenchmark.core.Blob
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
+import blobstoreBenchmark.core.Pair
 import blobstoreBenchmark.core.Plan
 import blobstoreBenchmark.core.Step
-import blobstoreBenchmark.core.Verify
+import blobstoreBenchmark.core.Sum
 
 object Main extends Harness {
   def init(plan: Plan): Unit =
@@ -19,7 +18,7 @@ object Main extends Harness {
       plan.dbDir,
       connection => {
         createTable(connection)
-        plan.keys
+        plan.pairs
           .grouped(100)
           .foreach(group => {
             group.foreach(write(connection, plan.blobSize, _))
@@ -28,13 +27,13 @@ object Main extends Harness {
       }
     )
 
-  def run(plan: Plan): Unit =
-    withConnection(plan.dbDir, connection => {
-      val sum = plan.steps.toStream
-        .map(runStep(connection, plan, _))
-        .sum
-      Verify.sum("total", sum, plan.expectedSum)
-    })
+  def run(plan: Plan): Long =
+    withConnection(
+      plan.dbDir,
+      connection =>
+        plan.steps.toStream
+          .map(runStep(connection, plan, _))
+          .sum)
 
   def runStep(
     connection: Connection,
@@ -42,12 +41,10 @@ object Main extends Harness {
     step: Step
   ): Long = {
     val sum = step.queries.toStream
-      .map(read(connection, plan.blobSize, _))
+      .map(read(connection, _))
       .sum
     step.updates
       .foreach(write(connection, plan.blobSize, _))
-    step.queries
-      .foreach(delete(connection, _))
     connection.commit()
     sum
   }
@@ -83,19 +80,19 @@ object Main extends Harness {
   def write(
     connection: Connection,
     blobSize: Int,
-    key: Key
+    pair: Pair
   ): Unit = {
-    val blob = Blob.generate(key, blobSize)
     val statement = connection.prepareStatement(
-      "insert into pairs (id, data) values (?, ?)")
-    statement.setLong(1, key.value)
-    statement.setBytes(2, blob.array)
+      "merge into pairs (id, data) values (?, ?)")
+    statement.setLong(1, pair.key.value)
+    statement.setBytes(
+      2,
+      pair.blobStub.generateArray(blobSize))
     val _ = statement.execute()
   }
 
   def read(
     connection: Connection,
-    blobSize: Int,
     key: Key
   ): Long = {
     val statement = connection.prepareStatement(
@@ -103,15 +100,8 @@ object Main extends Harness {
     statement.setLong(1, key.value)
     val results = statement.executeQuery()
     val _ = results.first()
-    val buffer = results.getBytes(1)
+    val array = results.getBytes(1)
     results.close()
-    Verify.blobSum(ByteBuffer.wrap(buffer), key, blobSize)
-  }
-
-  def delete(connection: Connection, key: Key): Unit = {
-    val statement = connection.prepareStatement(
-      "delete from pairs where id = ?")
-    statement.setLong(1, key.value)
-    val _ = statement.execute()
+    Sum.fromArray(array)
   }
 }

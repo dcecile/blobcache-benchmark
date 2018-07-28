@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils
 trait Harness {
   def init(plan: Plan): Unit
 
-  def run(plan: Plan): Unit
+  def run(plan: Plan): Long
 
   def main(args: Array[String]): Unit = {
     val conf = new Conf(args)
@@ -39,7 +39,9 @@ trait Harness {
     stepCount: Int
   ): Unit = {
     val plan = Plan.generate(dbDir, keyCount, stepCount)
-    Bench.report(describePlanTask("run", plan), run(plan))
+    val sum =
+      Bench.report(describePlanTask("run", plan), run(plan))
+    Verify.sum("total", sum, plan.expectedSum)
   }
 
   private lazy val name =
