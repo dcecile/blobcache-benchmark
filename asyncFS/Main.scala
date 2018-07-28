@@ -48,8 +48,9 @@ object Main extends Harness {
     val future = Observable
       .fromIterable(pairs)
       .mapParallelUnordered(1)(pair =>
-        Task(
-          (pair.key, pair.blobStub.generateBuffer(blobSize))))
+        Task((
+          pair.key,
+          pair.blobStub.generateDirectBuffer(blobSize).flip)))
       .bufferIntrospective(200)
       .mapTask(pairs => {
         val batch = pairs.map(tupled(writeTask(dbDir, _, _)))

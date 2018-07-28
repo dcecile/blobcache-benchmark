@@ -49,6 +49,16 @@ lazy val rocksDB =
       core
     )
 
+lazy val lmdb =
+  (project in file("lmdb"))
+    .withCustomSettings()
+    .libraryDependencies(
+      lmdbjava
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(
@@ -56,7 +66,8 @@ lazy val root =
       syncFS,
       asyncFS,
       h2,
-      rocksDB
+      rocksDB,
+      lmdb
     )
 
 fork in Global := true

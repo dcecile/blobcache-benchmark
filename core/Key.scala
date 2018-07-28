@@ -16,7 +16,13 @@ final case class Key(
     Base64.getUrlEncoder.encodeToString(toBytes)
 
   def toBytes: Array[Byte] =
-    ByteBuffer.allocate(Key.bytes).putLong(value).array
+    toIndirectBuffer.array
+
+  def toIndirectBuffer: ByteBuffer =
+    toBuffer(ByteBuffer.allocate(Key.bytes))
+
+  def toBuffer(emptyBuffer: ByteBuffer): ByteBuffer =
+    emptyBuffer.putLong(value)
 }
 
 object Key {

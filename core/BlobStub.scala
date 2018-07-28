@@ -6,16 +6,24 @@ import scala.util.Random
 final case class BlobStub(
   value: Long
 ) extends AnyVal {
-  def generateBuffer(size: Int): ByteBuffer = {
-    val buffer = ByteBuffer.allocate(size)
+  def generateBuffer(
+    size: Int,
+    buffer: ByteBuffer
+  ): ByteBuffer = {
     for (i <- 1 to (size / Key.bytes)) {
       buffer.putLong(value + i)
     }
-    buffer.rewind
+    buffer
   }
 
+  def generateDirectBuffer(size: Int): ByteBuffer =
+    generateBuffer(size, ByteBuffer.allocateDirect(size))
+
+  def generateIndirectBuffer(size: Int): ByteBuffer =
+    generateBuffer(size, ByteBuffer.allocate(size))
+
   def generateArray(size: Int): Array[Byte] =
-    generateBuffer(size).array
+    generateIndirectBuffer(size).array
 }
 
 object BlobStub {

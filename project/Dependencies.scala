@@ -35,6 +35,10 @@ object Dependencies {
     setting(
       "org.rocksdb" % "rocksdbjni" % "5.14.2")
 
+  lazy val lmdbjava =
+    setting(
+      "org.lmdbjava" % "lmdbjava" % "0.6.1")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")
