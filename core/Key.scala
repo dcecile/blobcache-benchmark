@@ -12,6 +12,13 @@ final case class Key(
     with Ordered[Key] {
   def compare(that: Key): Int = value compare that.value
 
+  def toSplitHex: (String, String) = {
+    val fullHex = value.toHexString
+    val start = fullHex.substring(0, 2)
+    val end = fullHex.substring(2)
+    (start, end)
+  }
+
   def toBase64: String =
     Base64.getUrlEncoder.encodeToString(toArray)
 
