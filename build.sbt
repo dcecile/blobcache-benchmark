@@ -69,6 +69,16 @@ lazy val mapDB =
       core
     )
 
+lazy val xodus =
+  (project in file("xodus"))
+    .withCustomSettings()
+    .libraryDependencies(
+      xodusenv
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(
@@ -78,7 +88,8 @@ lazy val root =
       h2,
       rocksDB,
       lmdb,
-      mapDB
+      mapDB,
+      xodus
     )
 
 fork in Global := true

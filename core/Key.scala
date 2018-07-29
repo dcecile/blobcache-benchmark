@@ -13,9 +13,9 @@ final case class Key(
   def compare(that: Key): Int = value compare that.value
 
   def toBase64: String =
-    Base64.getUrlEncoder.encodeToString(toBytes)
+    Base64.getUrlEncoder.encodeToString(toArray)
 
-  def toBytes: Array[Byte] =
+  def toArray: Array[Byte] =
     toIndirectBuffer.array
 
   def toIndirectBuffer: ByteBuffer =

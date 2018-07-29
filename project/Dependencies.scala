@@ -43,6 +43,10 @@ object Dependencies {
     setting(
       "org.mapdb" % "mapdb" % "3.0.7")
 
+  lazy val xodusenv =
+    setting(
+      "org.jetbrains.xodus" % "xodus-environment" % "1.2.3")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")

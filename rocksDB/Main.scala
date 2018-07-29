@@ -74,14 +74,14 @@ object Main extends Harness {
     pair: Pair
   ): Unit =
     batch.put(
-      pair.key.toBytes,
+      pair.key.toArray,
       pair.blobStub.generateArray(blobSize))
 
   def read(
     db: RocksDB,
     key: Key
   ): Long = {
-    val array = db.get(key.toBytes)
+    val array = db.get(key.toArray)
     Sum.fromArray(array)
   }
 }
