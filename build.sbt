@@ -45,6 +45,16 @@ lazy val monixNio =
       core
     )
 
+lazy val fs2 =
+  (project in file("fs2"))
+    .withCustomSettings()
+    .libraryDependencies(
+      fs2io
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val h2 =
   (project in file("h2"))
     .withCustomSettings()
@@ -103,6 +113,7 @@ lazy val root =
       simpleFiles,
       simpleSplitFiles,
       monixNio,
+      fs2,
       h2,
       rocksDB,
       lmdb,

@@ -47,6 +47,10 @@ object Dependencies {
     setting(
       "org.jetbrains.xodus" % "xodus-environment" % "1.2.3")
 
+  lazy val fs2io =
+    setting(
+      "co.fs2" %% "fs2-io" % "0.10.5")
+
   lazy val customResolvers =
     resolvers ++= Seq(
       Resolver.sonatypeRepo("releases")
