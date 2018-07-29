@@ -18,6 +18,14 @@ lazy val simpleFileStream =
       core
     )
 
+lazy val simpleFiles =
+  (project in file("simpleFiles"))
+    .withCustomSettings()
+    .libraryDependencies()
+    .projectDependencies(
+      core
+    )
+
 lazy val monixNio =
   (project in file("monixNio"))
     .withCustomSettings()
@@ -84,6 +92,7 @@ lazy val root =
     .aggregate(
       core,
       simpleFileStream,
+      simpleFiles,
       monixNio,
       h2,
       rocksDB,
