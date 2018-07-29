@@ -10,16 +10,16 @@ lazy val core =
       scallop
     )
 
-lazy val syncFS =
-  (project in file("syncFS"))
+lazy val simpleFileStream =
+  (project in file("simpleFileStream"))
     .withCustomSettings()
     .libraryDependencies()
     .projectDependencies(
       core
     )
 
-lazy val asyncFS =
-  (project in file("asyncFS"))
+lazy val monixNio =
+  (project in file("monixNio"))
     .withCustomSettings()
     .libraryDependencies(
       monix,
@@ -83,8 +83,8 @@ lazy val root =
   (project in file("."))
     .aggregate(
       core,
-      syncFS,
-      asyncFS,
+      simpleFileStream,
+      monixNio,
       h2,
       rocksDB,
       lmdb,

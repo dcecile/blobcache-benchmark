@@ -1,4 +1,4 @@
-package blobstoreBenchmark.syncFS
+package blobstoreBenchmark.simpleFileStream
 
 import java.io.File
 import java.io.FileInputStream

@@ -1,4 +1,4 @@
-package blobstoreBenchmark.asyncFS
+package blobstoreBenchmark.monixNio
 
 import java.io.File
 import java.nio.ByteBuffer
