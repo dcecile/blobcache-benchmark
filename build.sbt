@@ -1,5 +1,6 @@
-import tacit.sbt.Dependencies._
-import tacit.sbt.ProjectExtensions._
+import blobstoreBenchmark.sbt.BenchTask._
+import blobstoreBenchmark.sbt.Dependencies._
+import blobstoreBenchmark.sbt.ProjectExtensions._
 
 lazy val core =
   (project in file("core"))
@@ -7,12 +8,14 @@ lazy val core =
     .libraryDependencies(
       jna,
       commonsIo,
-      scallop
+      scallop,
+      boopickle
     )
 
 lazy val simpleFileStream =
   (project in file("simpleFileStream"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies()
     .projectDependencies(
       core
@@ -21,6 +24,7 @@ lazy val simpleFileStream =
 lazy val simpleFiles =
   (project in file("simpleFiles"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies()
     .projectDependencies(
       core
@@ -29,6 +33,7 @@ lazy val simpleFiles =
 lazy val simpleSplitFiles =
   (project in file("simpleSplitFiles"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies()
     .projectDependencies(
       core
@@ -37,6 +42,7 @@ lazy val simpleSplitFiles =
 lazy val monixNio =
   (project in file("monixNio"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       monix,
       monixnio
@@ -48,6 +54,7 @@ lazy val monixNio =
 lazy val fs2 =
   (project in file("fs2"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       fs2io
     )
@@ -58,6 +65,7 @@ lazy val fs2 =
 lazy val h2 =
   (project in file("h2"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       h2database
     )
@@ -68,6 +76,7 @@ lazy val h2 =
 lazy val rocksDB =
   (project in file("rocksDB"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       rocksdbjni
     )
@@ -78,6 +87,7 @@ lazy val rocksDB =
 lazy val lmdb =
   (project in file("lmdb"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       lmdbjava
     )
@@ -88,6 +98,7 @@ lazy val lmdb =
 lazy val mapDB =
   (project in file("mapDB"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       mapdb
     )
@@ -98,6 +109,7 @@ lazy val mapDB =
 lazy val xodus =
   (project in file("xodus"))
     .withCustomSettings()
+    .withBenchSettings()
     .libraryDependencies(
       xodusenv
     )
@@ -109,6 +121,7 @@ lazy val report =
   (project in file("report"))
     .withCustomSettings()
     .libraryDependencies(
+      scallop,
       evilplot
     )
     .projectDependencies(
@@ -131,7 +144,19 @@ lazy val root =
       xodus,
       report
     )
+    .withRootBenchSettings(
+      simpleFileStream,
+      simpleFiles,
+      simpleSplitFiles,
+      monixNio,
+      fs2,
+      h2,
+      rocksDB,
+      lmdb,
+      mapDB,
+      xodus
+    )
 
-fork in Global := true
-outputStrategy in Global := Some(StdoutOutput)
-cancelable in Global := true
+Global / fork := true
+Global / outputStrategy := Some(StdoutOutput)
+Global / cancelable := true

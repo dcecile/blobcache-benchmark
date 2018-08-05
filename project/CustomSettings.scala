@@ -1,4 +1,4 @@
-package tacit.sbt
+package blobstoreBenchmark.sbt
 
 import sbt.Keys._
 import sbt._

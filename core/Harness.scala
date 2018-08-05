@@ -2,6 +2,7 @@ package blobstoreBenchmark.core
 
 import java.io.File
 import org.apache.commons.io.FileUtils
+import org.rogach.scallop._
 
 trait Harness {
   def init(plan: Plan): Unit
@@ -9,7 +10,7 @@ trait Harness {
   def run(plan: Plan): Long
 
   def main(args: Array[String]): Unit = {
-    val conf = new Conf(args)
+    val conf = new Harness.Conf(args)
     conf.subcommand match {
       case Some(conf.clean) =>
         harnessClean()
@@ -41,7 +42,11 @@ trait Harness {
     Bench.report(describeTask("dropCaches"), Caches.drop())
     val plan = generatePlan(keyCount, stepCount)
     val sum =
-      Bench.report(describePlanTask("run", plan), run(plan))
+      Bench.reportAndLog(
+        describePlanTask("run", plan),
+        name,
+        plan.keyCount,
+        run(plan))
     Verify.sum("total", sum, plan.expectedSum)
   }
 
@@ -62,10 +67,13 @@ trait Harness {
   private def makeDbDir(): Unit =
     FileUtils.forceMkdir(dbDir)
 
-  private def deleteDbDir(): Unit =
+  private def deleteDbDir(): Unit = {
+    println(s"${name} clean...")
+    Thread.sleep(2000)
     if (dbDir.exists()) {
       FileUtils.deleteDirectory(dbDir)
     }
+  }
 
   private def describeTask(task: String): String =
     s"${name} ${task}"
@@ -75,4 +83,27 @@ trait Harness {
     plan: Plan
   ): String =
     s"${describeTask(task)} ${plan.keyCount} ${plan.stepCount} ${plan.blobSize}"
+}
+
+object Harness {
+  class Conf(arguments: Seq[String])
+      extends ScallopConf(arguments) {
+    object clean extends Subcommand("clean")
+    addSubcommand(clean)
+
+    object init extends Subcommand("init") {
+      val keyCount: ScallopOption[Int] = trailArg[Int]()
+      val ignored: ScallopOption[Int] =
+        trailArg[Int](required = false)
+    }
+    addSubcommand(init)
+
+    object run extends Subcommand("run") {
+      val keyCount: ScallopOption[Int] = trailArg[Int]()
+      val stepCount: ScallopOption[Int] = trailArg[Int]()
+    }
+    addSubcommand(run)
+
+    verify()
+  }
 }

@@ -8,8 +8,37 @@ final case class Bench(
   nanoTime: Long)
 
 object Bench {
-  val clockTicksPerSecond: Long =
-    Posix.instance.sysconf(Posix._SC_CLK_TCK)
+  def report[T](
+    description: String,
+    block: => T
+  ): T = {
+    val (value, result) = measure("", 0, block)
+    printResult(description, result)
+    value
+  }
+
+  def reportAndLog[T](
+    description: String,
+    blobstore: String,
+    keyCount: Int,
+    block: => T
+  ): T = {
+    val (value, result) = measure(blobstore, keyCount, block)
+    printResult(description, result)
+    logResult(result)
+    value
+  }
+
+  def measure[T](
+    blobstore: String,
+    keyCount: Int,
+    block: => T
+  ): (T, Result) = {
+    val start = snapshot()
+    val value: T = block
+    val end = snapshot()
+    (value, calculateResult(blobstore, keyCount, start, end))
+  }
 
   def snapshot(): Bench = {
     val buffer = new Array[Long](4)
@@ -22,35 +51,6 @@ object Bench {
     Bench(utime + cutime, stime + cstime, nanoTime)
   }
 
-  def report[T](
-    description: String,
-    block: => T
-  ): T = {
-    val start = snapshot()
-    val result: T = block
-    val end = snapshot()
-    val userSeconds =
-      toSeconds(
-        start.userClockTicks,
-        end.userClockTicks,
-        clockTicksPerSecond)
-    val systemSeconds =
-      toSeconds(
-        start.systemClockTicks,
-        end.systemClockTicks,
-        clockTicksPerSecond)
-    val totalSeconds =
-      toSeconds(start.nanoTime, end.nanoTime, 1000000000)
-    println(
-      Seq(
-        s"${description}",
-        s"user ${formatSeconds(userSeconds)}",
-        s"system ${formatSeconds(systemSeconds)}",
-        s"total ${formatSeconds(totalSeconds)}"
-      ).mkString(" / "))
-    result
-  }
-
   def toSeconds(
     start: Long,
     end: Long,
@@ -58,6 +58,41 @@ object Bench {
   ): Double =
     (end - start).toDouble / conversion.toDouble
 
+  def calculateResult(
+    blobstore: String,
+    keyCount: Int,
+    start: Bench,
+    end: Bench
+  ): Result =
+    Result(
+      blobstore,
+      keyCount,
+      toSeconds(
+        start.userClockTicks,
+        end.userClockTicks,
+        clockTicksPerSecond),
+      toSeconds(
+        start.systemClockTicks,
+        end.systemClockTicks,
+        clockTicksPerSecond),
+      toSeconds(start.nanoTime, end.nanoTime, 1000000000)
+    )
+
+  val clockTicksPerSecond: Long =
+    Posix.instance.sysconf(Posix._SC_CLK_TCK)
+
+  def printResult(description: String, result: Result): Unit =
+    println(
+      Seq(
+        s"${description}",
+        s"user ${formatSeconds(result.userSeconds)}",
+        s"system ${formatSeconds(result.systemSeconds)}",
+        s"total ${formatSeconds(result.totalSeconds)}"
+      ).mkString(" / "))
+
   def formatSeconds(seconds: Double): String =
     f"${seconds}%1.2fs"
+
+  def logResult(result: Result): Unit =
+    Result.saveAll(result +: Result.loadAll())
 }

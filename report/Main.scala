@@ -9,8 +9,10 @@ import com.cibo.evilplot.plot.aesthetics.DefaultTheme.DefaultTheme
 import com.cibo.evilplot.plot.aesthetics.Theme
 import com.cibo.evilplot.plot.renderers.PointRenderer
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import org.rogach.scallop._
 import scala.math
 
 import blobstoreBenchmark.core.DiscardNonUnitValue.discard
@@ -18,37 +20,46 @@ import blobstoreBenchmark.core.Result
 
 object Main {
   def main(args: Array[String]): Unit = {
-    discard(args)
-    val results = Seq.tabulate(3, 100) {
-      case (i, j) =>
-        Result(
-          i match {
-            case 0 => "simpleFileStream"
-            case 1 => "fs2"
-            case _ => "rocksDB"
-          },
-          math.pow(10, 1 + 4 * j.toDouble / 99).toInt,
-          5 * scala.util.Random.nextDouble(),
-          10 * scala.util.Random.nextDouble(),
-          20 * scala.util.Random.nextDouble()
-        )
+    val conf = new Conf(args)
+    conf.subcommand match {
+      case Some(conf.clean) =>
+        clean()
+      case Some(conf.run) =>
+        run()
+      case _ =>
+        conf.printHelp()
     }
-    val plot = combinePlots(
-      createPlot(
-        results.flatten,
-        "user seconds (s)",
-        _.userSeconds),
-      createPlot(
-        results.flatten,
-        "total seconds (s)",
-        _.totalSeconds))
+  }
+
+  def clean(): Unit = {
+    Result.clearAll()
+    discard(Files.deleteIfExists(finalPath))
+  }
+
+  val finalPath: Path = Paths.get("..", "results.png")
+
+  def run(): Unit = {
+    val results = Result.loadAll()
+    val plot = createAndCombinePlots(
+      results,
+      ("user seconds (s)", _.userSeconds),
+      ("total seconds (s)", _.totalSeconds))
     val drawable = renderPlot(plot)
     writePlot(drawable)
   }
 
   implicit val theme: Theme = DefaultTheme
 
-  def combinePlots(plots: Plot*): Plot =
+  def createAndCombinePlots(
+    results: Seq[Result],
+    plotDetails: (String, Result => Double)*
+  ): Plot =
+    combinePlots(plotDetails.map({
+      case (yLabel, yValue) =>
+        createPlot(results, yLabel, yValue)
+    }))
+
+  def combinePlots(plots: Seq[Plot]): Plot =
     Facets(plots.map(Seq(_)))
       .xLabel("key count")
       .padRight(40)
@@ -99,11 +110,21 @@ object Main {
   def writePlot(drawable: Drawable): Unit = {
     val writePath = Paths.get("out.png")
     drawable.write(writePath.toFile)
-    val finalPath = Paths.get("..", "r.png")
     discard(
       Files.move(
         writePath,
         finalPath,
         StandardCopyOption.REPLACE_EXISTING))
+  }
+
+  class Conf(arguments: Seq[String])
+      extends ScallopConf(arguments) {
+    object clean extends Subcommand("clean")
+    addSubcommand(clean)
+
+    object run extends Subcommand("run")
+    addSubcommand(run)
+
+    verify()
   }
 }

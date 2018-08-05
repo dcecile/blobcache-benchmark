@@ -1,7 +1,8 @@
-package tacit.sbt
+package blobstoreBenchmark.sbt
 
 import sbt._
 
+import BenchTask._
 import CustomSettings._
 import Dependencies._
 
@@ -11,6 +12,12 @@ object ProjectExtensions {
   ) extends AnyVal {
     def withCustomSettings() =
       project.settings(allCustomSettings)
+
+    def withBenchSettings() =
+      project.settings(benchOneTaskSettings)
+
+    def withRootBenchSettings(projects: ProjectReference*) =
+      project.settings(benchTaskSettings(projects))
 
     def libraryDependencies(
       dependencies: Def.Initialize[ModuleID]*
