@@ -51,10 +51,16 @@ object Dependencies {
     setting(
       "co.fs2" %% "fs2-io" % "0.10.5")
 
+  lazy val evilplot =
+    setting(
+      "com.cibo" %% "evilplot" % "0.4.1")
+
   lazy val customResolvers =
     resolvers ++= Seq(
-      Resolver.sonatypeRepo("releases")
+      Resolver.sonatypeRepo("releases"),
+      Resolver.bintrayRepo("cibotech", "public")
     )
+
 
   def toSettings(
     dependencies: Seq[Def.Initialize[ModuleID]]

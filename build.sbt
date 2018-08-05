@@ -105,6 +105,16 @@ lazy val xodus =
       core
     )
 
+lazy val report =
+  (project in file("report"))
+    .withCustomSettings()
+    .libraryDependencies(
+      evilplot
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val root =
   (project in file("."))
     .aggregate(
@@ -118,7 +128,8 @@ lazy val root =
       rocksDB,
       lmdb,
       mapDB,
-      xodus
+      xodus,
+      report
     )
 
 fork in Global := true
