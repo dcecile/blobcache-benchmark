@@ -13,11 +13,12 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import scala.math
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Result
 
 object Main {
   def main(args: Array[String]): Unit = {
-    println(args)
+    discard(args)
     val results = Seq.tabulate(3, 100) {
       case (i, j) =>
         Result(
@@ -99,9 +100,10 @@ object Main {
     val writePath = Paths.get("out.png")
     drawable.write(writePath.toFile)
     val finalPath = Paths.get("..", "r.png")
-    val _ = Files.move(
-      writePath,
-      finalPath,
-      StandardCopyOption.REPLACE_EXISTING)
+    discard(
+      Files.move(
+        writePath,
+        finalPath,
+        StandardCopyOption.REPLACE_EXISTING))
   }
 }

@@ -9,6 +9,7 @@ import jetbrains.exodus.env.StoreConfig
 import jetbrains.exodus.env.Transaction
 import jetbrains.exodus.env.TransactionalComputable
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -70,13 +71,13 @@ object Main extends Harness {
     txn: Transaction,
     blobSize: Int,
     pair: Pair
-  ): Unit = {
-    val _ = store.put(
-      txn,
-      new ArrayByteIterable(pair.key.toArray),
-      new ArrayByteIterable(
-        pair.blobStub.generateArray(blobSize)))
-  }
+  ): Unit =
+    discard(
+      store.put(
+        txn,
+        new ArrayByteIterable(pair.key.toArray),
+        new ArrayByteIterable(
+          pair.blobStub.generateArray(blobSize))))
 
   @SuppressWarnings(
     Array(

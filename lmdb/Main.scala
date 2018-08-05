@@ -8,6 +8,7 @@ import org.lmdbjava.Dbi
 import org.lmdbjava.DbiFlags
 import org.lmdbjava.Txn
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.BlobStub
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
@@ -76,13 +77,12 @@ object Main extends Harness {
     txn: Txn[ByteBuffer],
     db: Dbi[ByteBuffer],
     pair: Pair
-  ): Unit = {
-    val _ = db.put(
-      txn,
-      writeKeyBuffer(pair.key),
-      writeValueBuffer(pair.blobStub))
-    //println(s"${pair.key.value.toHexString} <- ${pair.blobStub.value.toHexString}")
-  }
+  ): Unit =
+    discard(
+      db.put(
+        txn,
+        writeKeyBuffer(pair.key),
+        writeValueBuffer(pair.blobStub)))
 
   def read(
     txn: Txn[ByteBuffer],
@@ -90,8 +90,6 @@ object Main extends Harness {
     key: Key
   ): Long = {
     val valueBuffer = db.get(txn, writeKeyBuffer(key))
-    //val first = valueBuffer.getLong()
-    //println(s"${key.value.toHexString} -> ${first.toHexString}")
     Sum.fromBuffer(valueBuffer)
   }
 

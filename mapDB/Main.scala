@@ -6,6 +6,7 @@ import java.util.Map
 import org.mapdb.DBMaker
 import org.mapdb.Serializer
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -64,11 +65,11 @@ object Main extends Harness {
     db: Map[JavaLong, Array[Byte]],
     blobSize: Int,
     pair: Pair
-  ): Unit = {
-    val _ = db.put(
-      pair.key.value,
-      pair.blobStub.generateArray(blobSize))
-  }
+  ): Unit =
+    discard(
+      db.put(
+        pair.key.value,
+        pair.blobStub.generateArray(blobSize)))
 
   def read(
     db: Map[JavaLong, Array[Byte]],

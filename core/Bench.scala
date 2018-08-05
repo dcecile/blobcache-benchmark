@@ -1,5 +1,7 @@
 package blobstoreBenchmark.core
 
+import DiscardNonUnitValue.discard
+
 final case class Bench(
   userClockTicks: Long,
   systemClockTicks: Long,
@@ -11,7 +13,7 @@ object Bench {
 
   def snapshot(): Bench = {
     val buffer = new Array[Long](4)
-    val _ = Posix.instance.times(buffer)
+    discard(Posix.instance.times(buffer))
     val nanoTime = System.nanoTime()
     val utime = buffer(0)
     val stime = buffer(1)

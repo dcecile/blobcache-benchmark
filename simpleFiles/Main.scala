@@ -3,6 +3,7 @@ package blobstoreBenchmark.simpleFiles
 import java.nio.file.Files
 import java.nio.file.Path
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -38,8 +39,9 @@ object Main extends Harness {
     pair: Pair
   ): Unit = {
     val path = dbDir.resolve(pair.key.toBase64)
-    val _ =
-      Files.write(path, pair.blobStub.generateArray(blobSize))
+    discard(
+      Files
+        .write(path, pair.blobStub.generateArray(blobSize)))
   }
 
   def read(

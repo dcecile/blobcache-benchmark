@@ -5,6 +5,7 @@ import java.sql.Connection
 import org.h2.jdbcx.JdbcConnectionPool
 import org.h2.tools.Console
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -73,7 +74,7 @@ object Main extends Harness {
   def createTable(connection: Connection): Unit = {
     val statement = connection.prepareStatement(
       "create table pairs(id bigint primary key, data binary)")
-    val _ = statement.execute()
+    discard(statement.execute())
   }
 
   def write(
@@ -87,7 +88,7 @@ object Main extends Harness {
     statement.setBytes(
       2,
       pair.blobStub.generateArray(blobSize))
-    val _ = statement.execute()
+    discard(statement.execute())
   }
 
   def read(
@@ -98,7 +99,7 @@ object Main extends Harness {
       "select data from pairs where id = ?")
     statement.setLong(1, key.value)
     val results = statement.executeQuery()
-    val _ = results.first()
+    discard(results.first())
     val array = results.getBytes(1)
     results.close()
     Sum.fromArray(array)
