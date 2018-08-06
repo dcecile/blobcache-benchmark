@@ -120,7 +120,7 @@ object Bench {
     f"${seconds}%1.2fs"
 
   def formatMegabytes(megabytes: Double): String =
-    f"${megabytes}%1.1fs"
+    f"${megabytes}%1.1f MB"
 
   def logResult(result: Result): Unit =
     Result.saveAll(result +: Result.loadAll())
