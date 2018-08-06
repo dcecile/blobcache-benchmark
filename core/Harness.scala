@@ -24,7 +24,7 @@ trait Harness {
   }
 
   private def harnessClean(): Unit =
-    Bench.report(describeTask("clean"), deleteDbDir())
+    Bench.report(dbDir, describeTask("clean"), deleteDbDir())
 
   private def harnessInit(
     keyCount: Int
@@ -32,17 +32,24 @@ trait Harness {
     harnessClean()
     makeDbDir()
     val plan = generatePlan(keyCount, stepCount = 0)
-    Bench.report(describePlanTask("init", plan), init(plan))
+    Bench.report(
+      dbDir,
+      describePlanTask("init", plan),
+      init(plan))
   }
 
   private def harnessRun(
     keyCount: Int,
     stepCount: Int
   ): Unit = {
-    Bench.report(describeTask("dropCaches"), Caches.drop())
+    Bench.report(
+      dbDir,
+      describeTask("dropCaches"),
+      Caches.drop())
     val plan = generatePlan(keyCount, stepCount)
     val sum =
       Bench.reportAndLog(
+        dbDir,
         describePlanTask("run", plan),
         name,
         plan.keyCount,
@@ -55,6 +62,7 @@ trait Harness {
     stepCount: Int
   ): Plan =
     Bench.report(
+      dbDir,
       describeTask("plan"),
       Plan.generate(dbDir, keyCount, stepCount))
 

@@ -13,7 +13,8 @@ final case class Result(
   keyCount: Int,
   userSeconds: Double,
   systemSeconds: Double,
-  totalSeconds: Double)
+  totalSeconds: Double,
+  totalSizeBytes: Long)
 
 object Result {
   @SuppressWarnings(

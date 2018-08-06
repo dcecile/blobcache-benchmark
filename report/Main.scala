@@ -42,8 +42,13 @@ object Main {
     val results = Result.loadAll()
     val plot = createAndCombinePlots(
       results,
+      ("total seconds (s)", _.totalSeconds),
+      ("system seconds (s)", _.systemSeconds),
       ("user seconds (s)", _.userSeconds),
-      ("total seconds (s)", _.totalSeconds))
+      (
+        "total size (MB)",
+        _.totalSizeBytes.toDouble / 1000 / 1000)
+    )
     val drawable = renderPlot(plot)
     writePlot(drawable)
   }
@@ -61,6 +66,7 @@ object Main {
 
   def combinePlots(plots: Seq[Plot]): Plot =
     Facets(plots.map(Seq(_)))
+      .padBottom(10)
       .xLabel("key count")
       .padRight(40)
       .rightLegend()
@@ -97,7 +103,7 @@ object Main {
 
   def renderPlot(plot: Plot): Drawable = {
     val plotDrawable = plot
-      .render(Extent(1600, 600))
+      .render(Extent(800, 1200))
       .padAll(80)
       .translate(-50, 20)
     val extent = plotDrawable.extent
