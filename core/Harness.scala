@@ -67,13 +67,10 @@ trait Harness {
   private def makeDbDir(): Unit =
     FileUtils.forceMkdir(dbDir)
 
-  private def deleteDbDir(): Unit = {
-    println(s"${name} clean...")
-    Thread.sleep(2000)
+  private def deleteDbDir(): Unit =
     if (dbDir.exists()) {
       FileUtils.deleteDirectory(dbDir)
     }
-  }
 
   private def describeTask(task: String): String =
     s"${name} ${task}"
