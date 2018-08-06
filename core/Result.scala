@@ -1,10 +1,8 @@
 package blobstoreBenchmark.core
 
-import boopickle.Default._
+import purecsv.unsafe._
+import java.io.File
 import java.nio.file.Files
-import java.nio.ByteBuffer
-import java.nio.file.Path
-import java.nio.file.Paths
 
 import DiscardNonUnitValue.discard
 
@@ -14,35 +12,22 @@ final case class Result(
   userSeconds: Double,
   systemSeconds: Double,
   totalSeconds: Double,
-  totalSizeBytes: Long)
+  totalSizeMegabytes: Double)
 
 object Result {
-  @SuppressWarnings(
-    Array(
-      "org.wartremover.warts.ImplicitParameter",
-      "org.wartremover.warts.NonUnitStatements",
-      "org.wartremover.warts.OptionPartial"))
   def loadAll(): Seq[Result] =
-    if (Files.exists(path)) {
-      val bytes = Files.readAllBytes(path)
-      val buffer = ByteBuffer.wrap(bytes)
-      Unpickle[Seq[Result]].fromBytes(buffer)
+    if (file.exists()) {
+      CSVReader[Result].readCSVFromFile(file)
     } else {
       Seq()
     }
 
-  @SuppressWarnings(
-    Array(
-      "org.wartremover.warts.ImplicitParameter",
-      "org.wartremover.warts.NonUnitStatements",
-      "org.wartremover.warts.OptionPartial"))
   def saveAll(results: Seq[Result]): Unit = {
-    val buffer = Pickle.intoBytes(results)
-    discard(Files.write(path, buffer.array))
+    results.writeCSVToFile(file)
   }
 
   def clearAll(): Unit =
-    discard(Files.deleteIfExists(path))
+    discard(Files.deleteIfExists(file.toPath))
 
-  val path: Path = Paths.get("..", "results.bin")
+  val file: File = new File("../results.csv")
 }

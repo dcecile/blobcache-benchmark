@@ -16,8 +16,8 @@ object Dependencies {
   lazy val scallop =
     setting("org.rogach" %% "scallop" % "3.1.2")
 
-  lazy val boopickle =
-    setting("io.suzaku" %% "boopickle" % "1.3.0")
+  lazy val purecsv =
+    setting("com.github.melrief" %% "purecsv" % "0.1.1")
 
   lazy val monix =
     setting("io.monix" %% "monix" % "3.0.0-RC1")

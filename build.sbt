@@ -9,7 +9,7 @@ lazy val core =
       jna,
       commonsIo,
       scallop,
-      boopickle
+      purecsv
     )
 
 lazy val simpleFileStream =

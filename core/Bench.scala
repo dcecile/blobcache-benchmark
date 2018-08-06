@@ -93,7 +93,7 @@ object Bench {
         end.systemClockTicks,
         clockTicksPerSecond),
       toSeconds(start.nanoTime, end.nanoTime, 1000000000),
-      end.totalSize
+      end.totalSize.toDouble / 1000 / 1000
     )
 
   def toSeconds(
@@ -113,14 +113,14 @@ object Bench {
         s"user ${formatSeconds(result.userSeconds)}",
         s"system ${formatSeconds(result.systemSeconds)}",
         s"total ${formatSeconds(result.totalSeconds)}",
-        s"size ${formatBytes(result.totalSizeBytes)}"
+        s"size ${formatMegabytes(result.totalSizeMegabytes)}"
       ).mkString(" / "))
 
   def formatSeconds(seconds: Double): String =
     f"${seconds}%1.2fs"
 
-  def formatBytes(bytes: Long): String =
-    FileUtils.byteCountToDisplaySize(bytes)
+  def formatMegabytes(megabytes: Double): String =
+    f"${megabytes}%1.1fs"
 
   def logResult(result: Result): Unit =
     Result.saveAll(result +: Result.loadAll())

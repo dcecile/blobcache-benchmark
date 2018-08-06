@@ -45,10 +45,7 @@ object Main {
       ("total seconds (s)", _.totalSeconds),
       ("system seconds (s)", _.systemSeconds),
       ("user seconds (s)", _.userSeconds),
-      (
-        "total size (MB)",
-        _.totalSizeBytes.toDouble / 1000 / 1000)
-    )
+      ("total size (MB)", _.totalSizeMegabytes))
     val drawable = renderPlot(plot)
     writePlot(drawable)
   }
