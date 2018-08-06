@@ -22,7 +22,7 @@ object Plan {
     keyCount: Int,
     stepCount: Int
   ): Plan = {
-    seed()
+    seed(keyCount)
 
     val stepSize = 10
     val blobSize = 4096
@@ -45,8 +45,8 @@ object Plan {
       expectedSum)
   }
 
-  private def seed(): Unit =
-    Random.setSeed(0)
+  private def seed(keyCount: Int): Unit =
+    Random.setSeed(keyCount.toLong)
 
   private def generatePairs(
     keyCount: Int
