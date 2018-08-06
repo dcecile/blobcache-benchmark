@@ -18,12 +18,8 @@ object Main extends Harness {
       plan.dbDir,
       connection => {
         createTable(connection)
-        plan.pairs
-          .grouped(100)
-          .foreach(group => {
-            group.foreach(write(connection, plan.blobSize, _))
-            connection.commit()
-          })
+        plan.pairs.foreach(
+          write(connection, plan.blobSize, _))
       }
     )
 
@@ -44,7 +40,6 @@ object Main extends Harness {
       .sum
     step.updates
       .foreach(write(connection, plan.blobSize, _))
-    connection.commit()
     sum
   }
 
@@ -56,6 +51,7 @@ object Main extends Harness {
       DriverManager.getConnection(connectionString(dbDir))
     connection.setAutoCommit(false)
     val result = block(connection)
+    connection.commit()
     connection.close()
     result
   }
