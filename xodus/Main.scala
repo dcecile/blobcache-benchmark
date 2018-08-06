@@ -95,6 +95,7 @@ object Main extends Harness {
     while (iterator.hasNext()) {
       buffer.putLong(iterator.nextLong(Key.bytes))
     }
-    Sum.fromBuffer(buffer.flip)
+    discard(buffer.flip)
+    Sum.fromBuffer(buffer)
   }
 }

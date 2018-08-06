@@ -22,9 +22,8 @@ object Result {
       Seq()
     }
 
-  def saveAll(results: Seq[Result]): Unit = {
+  def saveAll(results: Seq[Result]): Unit =
     results.writeCSVToFile(file)
-  }
 
   def clearAll(): Unit =
     discard(Files.deleteIfExists(file.toPath))

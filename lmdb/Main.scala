@@ -97,9 +97,17 @@ object Main extends Harness {
   val valueBuffer: ByteBuffer =
     ByteBuffer.allocateDirect(4096) // AKA plan.blobSize
 
-  def writeKeyBuffer(key: Key): ByteBuffer =
-    key.toBuffer(keyBuffer.clear).flip
+  def writeKeyBuffer(key: Key): ByteBuffer = {
+    discard(keyBuffer.clear)
+    val buffer = key.toBuffer(keyBuffer)
+    discard(buffer.flip)
+    buffer
+  }
 
-  def writeValueBuffer(blobStub: BlobStub): ByteBuffer =
-    blobStub.generateBuffer(4096, valueBuffer.clear).flip
+  def writeValueBuffer(blobStub: BlobStub): ByteBuffer = {
+    discard(valueBuffer.clear)
+    val buffer = blobStub.generateBuffer(4096, valueBuffer)
+    discard(buffer.flip)
+    buffer
+  }
 }

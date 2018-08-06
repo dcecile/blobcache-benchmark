@@ -11,6 +11,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.Function.tupled
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -48,9 +49,12 @@ object Main extends Harness {
     val future = Observable
       .fromIterable(pairs)
       .mapParallelUnordered(1)(pair =>
-        Task((
-          pair.key,
-          pair.blobStub.generateDirectBuffer(blobSize).flip)))
+        Task({
+          val buffer =
+            pair.blobStub.generateDirectBuffer(blobSize)
+          discard(buffer.flip)
+          (pair.key, buffer)
+        }))
       .bufferIntrospective(200)
       .mapTask(pairs => {
         val batch = pairs.map(tupled(writeTask(dbDir, _, _)))
@@ -96,6 +100,7 @@ object Main extends Harness {
       .flatMap(_ => channel.close())
       .runAsync
     Await.result(future, 1.seconds)
-    Sum.fromBuffer(buffer.rewind)
+    discard(buffer.rewind)
+    Sum.fromBuffer(buffer)
   }
 }

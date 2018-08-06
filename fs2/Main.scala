@@ -8,6 +8,7 @@ import fs2.io.file.readAllAsync
 import fs2.io.file.writeAllAsync
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
 import blobstoreBenchmark.core.Key
 import blobstoreBenchmark.core.Pair
@@ -57,8 +58,8 @@ object Main extends Harness {
     blobSize: Int,
     pair: Pair
   ): Stream[IO, Byte] = {
-    val buffer =
-      pair.blobStub.generateDirectBuffer(blobSize).flip
+    val buffer = pair.blobStub.generateDirectBuffer(blobSize)
+    discard(buffer.flip)
     val path = dbDir.resolve(pair.key.toBase64)
     Stream
       .chunk(Chunk.byteBuffer(buffer))
