@@ -73,6 +73,17 @@ lazy val h2 =
       core
     )
 
+lazy val sqlite =
+  (project in file("sqlite"))
+    .withCustomSettings()
+    .withBenchSettings()
+    .libraryDependencies(
+      sqlitejdbc
+    )
+    .projectDependencies(
+      core
+    )
+
 lazy val rocksDB =
   (project in file("rocksDB"))
     .withCustomSettings()
@@ -138,6 +149,7 @@ lazy val root =
       monixNio,
       fs2,
       h2,
+      sqlite,
       rocksDB,
       lmdb,
       mapDB,
@@ -151,6 +163,7 @@ lazy val root =
       monixNio,
       fs2,
       h2,
+      sqlite,
       rocksDB,
       lmdb,
       mapDB,

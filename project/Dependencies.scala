@@ -28,6 +28,9 @@ object Dependencies {
   lazy val h2database =
     setting("com.h2database" % "h2" % "1.4.197")
 
+  lazy val sqlitejdbc =
+    setting("org.xerial" % "sqlite-jdbc" % "3.23.1")
+
   lazy val rocksdbjni =
     setting("org.rocksdb" % "rocksdbjni" % "5.14.2")
 

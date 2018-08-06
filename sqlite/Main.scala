@@ -1,9 +1,8 @@
-package blobstoreBenchmark.h2
+package blobstoreBenchmark.sqlite
 
 import java.io.File
 import java.sql.Connection
-import org.h2.jdbcx.JdbcConnectionPool
-import org.h2.tools.Console
+import java.sql.DriverManager
 
 import blobstoreBenchmark.core.DiscardNonUnitValue.discard
 import blobstoreBenchmark.core.Harness
@@ -49,31 +48,24 @@ object Main extends Harness {
     sum
   }
 
-  def debug(): Unit =
-    Console.main()
-
   def withConnection[T](
     dbDir: File,
     block: Connection => T
   ): T = {
-    val pool = JdbcConnectionPool.create(
-      connectionString(dbDir),
-      "sa",
-      "sa")
-    val connection = pool.getConnection()
+    val connection =
+      DriverManager.getConnection(connectionString(dbDir))
     connection.setAutoCommit(false)
     val result = block(connection)
     connection.close()
-    pool.dispose()
     result
   }
 
   def connectionString(dbDir: File): String =
-    s"jdbc:h2:./${dbDir.getPath()}/store"
+    s"jdbc:sqlite:./${dbDir.getPath()}/store.db"
 
   def createTable(connection: Connection): Unit = {
     val statement = connection.prepareStatement(
-      "create table pairs(id bigint primary key, data binary)")
+      "create table pairs(id integer primary key, data blob)")
     discard(statement.execute())
   }
 
@@ -83,7 +75,7 @@ object Main extends Harness {
     pair: Pair
   ): Unit = {
     val statement = connection.prepareStatement(
-      "merge into pairs (id, data) values (?, ?)")
+      "insert or replace into pairs (id, data) values (?, ?)")
     statement.setLong(1, pair.key.value)
     statement.setBytes(
       2,
