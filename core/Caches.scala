@@ -3,18 +3,20 @@ package blobstoreBenchmark.core
 import scala.sys.process.Process
 
 object Caches {
-  @SuppressWarnings(
-    Array(
-      "org.wartremover.warts.Throw",
-      "org.wartremover.warts.TraversableOps"))
-  def drop(): Unit = {
-    val command = Seq(
-      "sudo",
-      "sh",
-      "-c",
-      "sync; echo 3 >/proc/sys/vm/drop_caches")
-    println(s"sudo: ${command.last}")
-    val builder = Process(command)
+  def drop(): Unit =
+    sudo("sync; echo 3 >/proc/sys/vm/drop_caches")
+
+  def syncAfter[T](block: => T): T = {
+    val value: T = block
+    sudo("sync")
+    value
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Throw"))
+  private def sudo(sudoCommand: String): Unit = {
+    val fullCommand = Seq("sudo", "sh", "-c", sudoCommand)
+    println(s"sudo: ${sudoCommand}")
+    val builder = Process(fullCommand)
     val process = builder.run(connectInput = true)
     if (process.exitValue() != 0) {
       throw new Exception("Drop caches failed")

@@ -35,7 +35,7 @@ trait Harness {
     Bench.report(
       dbDir,
       describePlanTask("init", plan),
-      init(plan))
+      Caches.syncAfter(init(plan)))
   }
 
   private def harnessRun(
@@ -53,7 +53,7 @@ trait Harness {
         describePlanTask("run", plan),
         name,
         plan.keyCount,
-        run(plan))
+        Caches.syncAfter(run(plan)))
     Verify.sum("total", sum, plan.expectedSum)
   }
 
