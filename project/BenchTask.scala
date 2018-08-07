@@ -37,7 +37,7 @@ object BenchTask {
   def planBenchmarkArgs(max: Int, scale: Int): Seq[String] =
     planBenchmarkKeyCounts(max, scale)
       .flatMap(keyCount =>
-        Seq(s" init ${keyCount}", s" run ${keyCount} 1000")) :+ " clean"
+        Seq(s" init ${keyCount}", s" run ${keyCount} 100")) :+ " clean"
 
   def planBenchmarkKeyCounts(max: Int, scale: Int): Seq[Int] =
     Stream

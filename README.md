@@ -8,7 +8,8 @@ You'll need to install a JDK (to run the Scala compiler) and [SBT](http://www.sc
 
 Here are some important `sbt` commands:
 
-- `???` (to run the benchmarks)
+- `bench 100000 3` (to run the benchmarks)
+- `report/run run` (to build the report)
 - `compile` (to compile everything)
 - `fmt` (to reformat all source files)
 

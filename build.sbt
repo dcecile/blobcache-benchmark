@@ -152,7 +152,7 @@ lazy val root =
       h2,
       sqlite,
       rocksDB,
-      lmdb,
+      ////lmdb, // Needs 2 GB disk space
       mapDB,
       xodus
     )

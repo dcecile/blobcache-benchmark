@@ -66,8 +66,6 @@ object Main {
     Facets(plots.map(Seq(_)))
       .padBottom(10)
       .xLabel("key count")
-      .padRight(40)
-      .rightLegend()
 
   def createPlot(
     results: Seq[Result],
@@ -95,13 +93,15 @@ object Main {
       .yGrid(lineCount = Some(6))
       .padLeft(10)
       .yLabel(yLabel)
+      .padRight(20)
+      .rightLegend()
       .frame()
       .padTop(20)
   }
 
   def renderPlot(plot: Plot): Drawable = {
     val plotDrawable = plot
-      .render(Extent(800, 1200))
+      .render(Extent(800, 2400))
       .padAll(80)
       .translate(-50, 20)
     val extent = plotDrawable.extent

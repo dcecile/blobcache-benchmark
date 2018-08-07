@@ -60,7 +60,7 @@ object Main extends Harness {
   ): T = {
     val env = Env
       .create()
-      .setMapSize(500 * 1000 * 1000)
+      .setMapSize(2 * 1000 * 1000 * 1000)
       .setMaxDbs(1)
       .open(dbDir, EnvFlags.MDB_WRITEMAP, EnvFlags.MDB_NOSYNC)
     val db = env.openDbi(
